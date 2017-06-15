@@ -276,7 +276,11 @@ class MongoDB(object):
             else:
                 self.log("Unknown configuration key %s" % node.key)
 
+def config(obj):
+    mongodb = MongoDB()
+    mongodb.config(obj)
+    collectd.register_read(mongodb.do_server_status,
+                           name='mongo-%s:%s' % (mongodb.mongo_host,
+                                                 mongodb.mongo_port))
 
-mongodb = MongoDB()
-collectd.register_config(mongodb.config)
-collectd.register_read(mongodb.do_server_status)
+collectd.register_config(config)
