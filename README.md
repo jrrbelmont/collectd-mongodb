@@ -9,8 +9,7 @@ This plugin is a direct port of the MongoDB C plugin that will be part of collec
 * Collectd 4.9 or later (for the Python plugin)
 * Python 2.4 or later
 * MongoDB 2.4 or later
-* PyMongo 3.x
-
+* PyMongo 3.x (**To use SSL/TLS, install Pymongo with TLS support by running `pip install pymongo[tls]`.**)
 # Configuration
 
 The plugin has some configuration options even though none are mandatory. This is done by passing parameters via the <Module> config section in your Collectd config. The following parameters are recognized:
@@ -20,6 +19,23 @@ The plugin has some configuration options even though none are mandatory. This i
 * Host - hostname or IP address of the mongodb server defaults to 127.0.0.1
 * Port - the port of the mongodb server defaults to 27017
 * Database - the databases you want to monitor defaults to "admin". You can provide more than one database. Note that the first database _must_ be "admin", as it is used to perform a serverStatus()
+
+## SSL/TLS Configuration
+**To use SSL/TLS, install Pymongo with TLS support by running `pip install pymongo[tls]`.**
+
+* UseTLS - set this to `true` if you want to connect to Mongo using TLS/x509/SSL.
+* CACerts - path to a CA cert that will be used to verify the certificate that
+    Mongo presents (not needed if not using TLS or if Mongo's cert is signed by
+    a globally trusted issuer already installed in the default location on your
+    OS)
+* TLSClientCert - path to a client certificate (not needed unless your Mongo
+    instance requires x509 client verification)
+* TLSClientKey - path to a client certificate key (not needed unless your Mongo
+    instance requires x509 client verification, or if your client cert above
+    has the key included)
+* TLSClientKeyPassphrase - passphrase for the TLSClientKey above (not needed if
+    not using TLS Client auth, requires Python 2.7.9+)
+
 
 The following is an example Collectd configuration for this plugin:
 
@@ -38,6 +54,8 @@ The following is an example Collectd configuration for this plugin:
             User ""
             Password "password"
             Database "admin" "db-prod" "db-dev"
+
+            UseTLS true
         </Module>
     </Plugin>
 

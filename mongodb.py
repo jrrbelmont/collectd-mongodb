@@ -19,6 +19,12 @@ class MongoDB(object):
         self.cluster_name = None
         self.dimensions = None
 
+        self.use_ssl = False
+        self.ca_certs_path = None
+        self.ssl_client_cert_path = None
+        self.ssl_client_key_path = None
+        self.ssl_client_key_passphrase = None
+
     def submit(self, type, type_instance, value, db=None):
         v = collectd.Values()
         v.plugin = self.plugin_name
@@ -49,9 +55,26 @@ class MongoDB(object):
         v.values = [value, ]
         v.dispatch()
 
+    @property
+    def ssl_kwargs(self):
+        d = {}
+        if self.use_ssl:
+            d["ssl"] = True
+            if self.ca_certs_path:
+                d["ssl_ca_certs"] = self.ca_certs_path
+            if self.ssl_client_cert_path:
+                d["ssl_certfile"] = self.ssl_client_cert_path
+            if self.ssl_client_key_path:
+                d["ssl_keyfile"] = self.ssl_client_key_path
+            if self.ssl_client_key_passphrase:
+                d["ssl_pem_passphrase"] = self.ssl_client_key_passphrase
+
+        return d
+
     def do_server_status(self):
         try:
-            con = pymongo.MongoClient(self.mongo_host, self.mongo_port)
+            con = pymongo.MongoClient(self.mongo_host, self.mongo_port,
+                                      **self.ssl_kwargs)
         except Exception, e:
             self.log('ERROR: Connection failed for %s:%s' % (
                 self.mongo_host, self.mongo_port))
@@ -273,6 +296,16 @@ class MongoDB(object):
                 self.mongo_db = node.values
             elif node.key == 'Dimensions':
                 self.dimensions = node.values[0]
+            elif node.key == 'UseTLS':
+                self.use_ssl = node.values[0]
+            elif node.key == 'CACerts':
+                self.ca_certs_path = node.values[0]
+            elif node.key == 'TLSClientCert':
+                self.ssl_client_cert_path = node.values[0]
+            elif node.key == 'TLSClientKey':
+                self.ssl_client_key_path = node.values[0]
+            elif node.key == 'TLSClientKeyPassphrase':
+                self.ssl_client_key_passphrase = node.values[0]
             else:
                 self.log("Unknown configuration key %s" % node.key)
 
