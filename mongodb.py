@@ -81,6 +81,17 @@ class MongoDB(object):
         db = con[self.mongo_db[0]]
         if self.mongo_user and self.mongo_password:
             db.authenticate(self.mongo_user, self.mongo_password)
+        elif self.ssl_client_cert_path:
+            try:
+                db.authenticate(self.mongo_user, mechanism='MONGODB-X509')
+            except pymongo.helpers.OperationFailure as e:
+                collectd.error(str(e))
+                collectd.error("ERROR: Could not authenticate to Mongo using TLS client "
+                               "auth username '%s'.  Make sure this username is set and matches "
+                               "EXACTLY (fields in the same order as) the user specified in the "
+                               "$external database" % self.mongo_user)
+                return
+
         server_status = db.command('serverStatus')
 
         # mongodb version

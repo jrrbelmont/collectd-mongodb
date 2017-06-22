@@ -30,11 +30,19 @@ The plugin has some configuration options even though none are mandatory. This i
     OS)
 * TLSClientCert - path to a client certificate (not needed unless your Mongo
     instance requires x509 client verification)
+* User (**required for TLS client auth**) - The username associated with the client cert
+    (this is the *subject* field of the client cert, formatted according to
+    RFC2253 **and in the same order that was specified when creating the user
+    in the Mongo `$external` database**).  You can get this value by running
+    the following command: `openssl x509 -in <pathToClient PEM> -inform PEM
+    -subject -nameopt RFC2253`.
 * TLSClientKey - path to a client certificate key (not needed unless your Mongo
     instance requires x509 client verification, or if your client cert above
     has the key included)
 * TLSClientKeyPassphrase - passphrase for the TLSClientKey above (not needed if
     not using TLS Client auth, requires Python 2.7.9+)
+
+
 
 
 The following is an example Collectd configuration for this plugin:
@@ -56,6 +64,10 @@ The following is an example Collectd configuration for this plugin:
             Database "admin" "db-prod" "db-dev"
 
             UseTLS true
+
+            # If using TLS client auth with cert and key in same file without passphrase
+            TLSClientCert "/path/to/cert.pem"
+            User "CN=example.com,OU=Acme\,Inc,L=Springfield,C=US"
         </Module>
     </Plugin>
 
