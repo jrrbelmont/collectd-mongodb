@@ -53,6 +53,13 @@ class MongoDB(object):
         v.type = type
         v.type_instance = type_instance
         v.values = [value, ]
+
+        # With some versions of CollectD, a dummy metadata map must be added
+        # to each value for it to be correctly serialized to JSON by the
+        # write_http plugin. See
+        # https://github.com/collectd/collectd/issues/716
+        v.meta = {'0': True}
+
         v.dispatch()
 
     @property
