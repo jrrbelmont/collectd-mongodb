@@ -269,6 +269,8 @@ class MongoDB(object):
         if 'wiredTiger' in server_status:
             self.submit('gauge', 'wiredTiger.cache.bytesCurrentlyInTheCache',
                         server_status['wiredTiger']['cache']['bytes currently in the cache'])
+            self.submit('gauge', 'wiredTiger.cache.maximumBytesConfigured',
+                        server_status['wiredTiger']['cache']['maximum bytes configured'])
             self.submit('counter', 'wiredTiger.cache.pagesEvictedByApplicationThreads',
                         server_status['wiredTiger']['cache']['pages evicted by application threads'])
             self.submit('gauge', 'wiredTiger.cache.trackedDirtyBytesInTheCache',
