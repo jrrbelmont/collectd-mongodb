@@ -265,6 +265,15 @@ class MongoDB(object):
             for t in ['accesses', 'misses', 'hits', 'resets', 'missRatio']:
                 self.submit('counter', 'indexCounters.' + t, index_counters[t])
 
+        # WiredTiger
+        if 'wiredTiger' in server_status:
+            self.submit('gauge', 'wiredTiger.cache.bytesCurrentlyInTheCache',
+                        server_status['wiredTiger']['cache']['bytes currently in the cache'])
+            self.submit('counter', 'wiredTiger.cache.pagesEvictedByApplicationThreads',
+                        server_status['wiredTiger']['cache']['pages evicted by application threads'])
+            self.submit('gauge', 'wiredTiger.cache.trackedDirtyBytesInTheCache',
+                        server_status['wiredTiger']['cache']['tracked dirty bytes in the cache'])
+
         for mongo_db in self.mongo_db:
             db = con[mongo_db]
             if self.mongo_user and self.mongo_password:
